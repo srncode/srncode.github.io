@@ -1,433 +1,731 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EBS VOCA 암기장</title>
-
+<title>EBS VOCA 1800 단어 암기</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
-body{
-    font-family: Arial, sans-serif;
-    max-width:900px;
-    margin:auto;
-    padding:20px;
-    background:#f5f7fa;
-}
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3248;
+    --accent: #6c63ff;
+    --accent2: #a78bfa;
+    --success: #22c55e;
+    --error: #ef4444;
+    --warn: #f59e0b;
+    --text: #e8e9f0;
+    --text2: #9095b0;
+    --radius: 14px;
+  }
 
-h1{
-    text-align:center;
-}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-.card{
-    background:white;
-    border-radius:10px;
-    padding:20px;
-    margin-top:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px;
+  }
 
-.word{
-    font-size:36px;
-    font-weight:bold;
-    text-align:center;
-    color:#1f4e79;
-    margin:20px 0;
-}
+  header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    color: var(--text2);
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
 
-input[type="text"]{
-    width:100%;
-    padding:12px;
-    font-size:18px;
-    box-sizing:border-box;
-}
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 100%;
+    max-width: 560px;
+  }
 
-button{
-    padding:10px 15px;
-    margin-top:10px;
-    cursor:pointer;
-}
+  /* ── Day 선택 화면 ── */
+  #screen-select label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .day-grid::-webkit-scrollbar { width: 4px; }
+  .day-grid::-webkit-scrollbar-track { background: var(--surface2); border-radius: 4px; }
+  .day-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
-.correct{
-    color:green;
-    font-weight:bold;
-}
+  .day-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text2);
+    font-size: 0.8rem;
+    padding: 8px 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+  }
+  .day-btn:hover { border-color: var(--accent); color: var(--text); }
+  .day-btn.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
 
-.wrong{
-    color:red;
-    font-weight:bold;
-}
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #5b52e8; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    margin-top: 10px;
+  }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
 
-#progress{
-    font-size:18px;
-    font-weight:bold;
-}
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-top: 12px;
+  }
 
+  /* ── 퀴즈 화면 ── */
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+
+  .quiz-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text2);
+    margin-bottom: 24px;
+  }
+  .quiz-meta span:last-child { color: var(--error); font-weight: 600; }
+
+  .word-display {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .word-display .word {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .word-display .day-tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    color: var(--text2);
+    margin-top: 6px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .tries-dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .try-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+  .try-dot.used { background: var(--error); }
+
+  .answer-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 1rem;
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 12px;
+  }
+  .answer-input:focus { border-color: var(--accent); }
+  .answer-input.correct { border-color: var(--success); background: rgba(34,197,94,0.08); }
+  .answer-input.wrong { border-color: var(--error); background: rgba(239,68,68,0.08); }
+
+  .feedback {
+    text-align: center;
+    font-size: 0.9rem;
+    min-height: 22px;
+    margin-bottom: 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .feedback.success { color: var(--success); }
+  .feedback.error { color: var(--error); }
+  .feedback.warn { color: var(--warn); }
+
+  .answer-reveal {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .answer-reveal.show { display: block; }
+  .answer-reveal .label { font-size: 0.75rem; color: var(--text2); margin-bottom: 4px; }
+  .answer-reveal .meanings {
+    font-size: 0.95rem;
+    color: var(--accent2);
+    line-height: 1.6;
+  }
+
+  /* ── 결과 화면 ── */
+  .result-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .result-header .emoji { font-size: 3rem; margin-bottom: 8px; }
+  .result-header h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .result-header p { color: var(--text2); margin-top: 4px; }
+
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .score-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .score-cell .num {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+  .score-cell .num.green { color: var(--success); }
+  .score-cell .num.red { color: var(--error); }
+  .score-cell .num.blue { color: var(--accent2); }
+  .score-cell .lbl { font-size: 0.75rem; color: var(--text2); margin-top: 2px; }
+
+  .wrong-list h3 {
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .wrong-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    gap: 12px;
+  }
+  .wrong-item .w { font-family: 'Space Grotesk', sans-serif; font-weight: 600; color: var(--error); min-width: 120px; }
+  .wrong-item .m { font-size: 0.85rem; color: var(--text2); }
+
+  #loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--text2);
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 400px) {
+    .day-grid { grid-template-columns: repeat(5, 1fr); }
+    .word-display .word { font-size: 1.8rem; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<h1>📖 EBS VOCA 암기장</h1>
+<header>
+  <h1>EBS VOCA 1800</h1>
+  <p>단어를 선택하고 뜻을 맞혀보세요</p>
+</header>
 
 <div class="card">
+  <!-- 로딩 -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <span>단어 불러오는 중…</span>
+  </div>
 
-```
-<label>DAY 입력 (1~30)</label>
+  <!-- Day 선택 -->
+  <div id="screen-select" class="hidden">
+    <label>공부할 Day를 선택하세요 (복수 선택 가능)</label>
+    <div class="day-grid" id="day-grid"></div>
+    <button class="btn btn-primary" id="btn-start" disabled>시작하기</button>
+    <div class="info-row">
+      <span id="selected-days-info">선택된 Day 없음</span>
+      <span id="word-count-info"></span>
+    </div>
+  </div>
 
-<input
-    type="number"
-    id="dayInput"
-    min="1"
-    max="30"
-    placeholder="예: 1">
+  <!-- 퀴즈 -->
+  <div id="screen-quiz" class="hidden">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="quiz-meta">
+      <span id="q-counter">1 / 30</span>
+      <span id="q-wrong-count">❌ 0</span>
+    </div>
+    <div class="word-display">
+      <div class="word" id="q-word">—</div>
+      <div class="day-tag" id="q-day">Day01</div>
+    </div>
+    <div class="tries-dots" id="tries-dots">
+      <div class="try-dot" id="dot0"></div>
+      <div class="try-dot" id="dot1"></div>
+    </div>
+    <input type="text" class="answer-input" id="answer-input" placeholder="한국어 뜻을 입력하세요…" autocomplete="off" />
+    <div class="feedback" id="feedback"></div>
+    <div class="answer-reveal" id="answer-reveal">
+      <div class="label">정답</div>
+      <div class="meanings" id="reveal-meanings"></div>
+    </div>
+    <button class="btn btn-primary" id="btn-check">확인</button>
+    <button class="btn btn-secondary hidden" id="btn-next">다음 문제 →</button>
+  </div>
 
-<br>
-
-<button onclick="loadDay()">학습 시작</button>
-```
-
+  <!-- 결과 -->
+  <div id="screen-result" class="hidden">
+    <div class="result-header">
+      <div class="emoji" id="result-emoji">🎉</div>
+      <h2 id="result-title">결과</h2>
+      <p id="result-sub"></p>
+    </div>
+    <div class="score-grid">
+      <div class="score-cell"><div class="num green" id="r-correct">0</div><div class="lbl">정답</div></div>
+      <div class="score-cell"><div class="num red" id="r-wrong">0</div><div class="lbl">오답</div></div>
+      <div class="score-cell"><div class="num blue" id="r-rate">0%</div><div class="lbl">정답률</div></div>
+    </div>
+    <div class="wrong-list" id="wrong-list-section">
+      <h3 id="wrong-list-title">틀린 단어</h3>
+      <div id="wrong-list-items"></div>
+    </div>
+    <button class="btn btn-primary" id="btn-retry-wrong" style="margin-top:16px;" onclick="retryWrong()">틀린 단어만 다시 풀기</button>
+    <button class="btn btn-secondary" onclick="goHome()">Day 다시 선택하기</button>
+  </div>
 </div>
-
-<div id="quizArea" class="card" style="display:none;">
-
-```
-<div id="progress"></div>
-
-<div class="word" id="word"></div>
-
-<input
-    type="text"
-    id="answer"
-    placeholder="뜻을 입력하세요">
-
-<button onclick="checkAnswer()">정답 확인</button>
-
-<div id="result"></div>
-```
-
-</div>
-
-<div id="summary" class="card" style="display:none;"></div>
 
 <script>
-
-let vocabData = [];
-let quizList = [];
-
-let currentIndex = 0;
-let score = 0;
+// ── 데이터 로딩 ──
+let allWords = {}; // { 'Day01': [{word, meanings:[...]}, ...], ... }
+let quiz = [];
+let current = 0;
+let tries = 0;
 let wrongWords = [];
-let wrongCount = 0;
+let sessionWrong = [];
+let isRetryMode = false;
 
-const TOTAL_QUESTIONS = 30;
+async function loadCSV() {
+  try {
+    // 같은 경로의 voca.csv를 읽음
+    const res = await fetch('voca.csv');
+    if (!res.ok) throw new Error('파일을 찾을 수 없습니다.');
+    const text = await res.text();
+    parseCSV(text);
+    showSelectScreen();
+  } catch (e) {
+    document.getElementById('loading').innerHTML =
+      `<p style="color:var(--error);text-align:center">⚠️ voca.csv 파일을 불러오지 못했습니다.<br><small style="color:var(--text2)">${e.message}</small></p>`;
+  }
+}
 
-window.onload = async function(){
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  // 첫 줄 헤더 skip
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseCSVLine(lines[i]);
+    if (cols.length < 3) continue;
+    const day  = cols[0].trim();
+    const word = cols[1].trim();
+    const raw  = cols[2].trim();
+    // 여러 뜻 파싱: 콤마 + 접속사로 구분, 품사 접두어 포함
+    const meanings = parseMeanings(raw);
+    if (!allWords[day]) allWords[day] = [];
+    allWords[day].push({ word, meanings, raw });
+  }
+}
 
-    try{
+function parseCSVLine(line) {
+  // 간단 CSV 파서 (따옴표 지원)
+  const result = [];
+  let cur = '';
+  let inQuote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQuote = !inQuote; }
+    else if (c === ',' && !inQuote) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
 
-        const response = await fetch("voca.csv");
+function parseMeanings(raw) {
+  // raw 예: "a. 열정적인" / "a. 소중한, 귀중한" / "v. 수리하다, 고치다, 정하다"
+  // 품사 태그(n./v./a./ad./prep. 등) 기준으로 의미 그룹 분리
+  const posPattern = /(?:^|(?<=,\s*))(n\.|v\.|a\.|ad[jv]?\.|prep\.|conj\.|pron\.|int\.|det\.)/g;
 
-        const text = await response.text();
+  // 1차: 품사 구분자로 split해서 각 뜻 덩어리 추출
+  const parts = raw.split(/(?=(?:^|,\s*)(?:n\.|v\.|a\.|adv?\.|adj\.|prep\.|conj\.|pron\.|int\.|det\.))/);
+  const meanings = [];
+  for (const p of parts) {
+    const s = p.replace(/^,\s*/, '').trim();
+    if (!s) continue;
+    // 각 덩어리 내 콤마 단위 뜻들도 포함
+    meanings.push(s);
+  }
+  if (meanings.length === 0) meanings.push(raw.trim());
+  return meanings;
+}
 
-        parseCSV(text);
+// ── 정답 체크: 유저 입력이 meanings 중 하나와 충분히 겹치는지 ──
+function checkAnswer(input, meanings, raw) {
+  const normalize = s => s
+    .replace(/[a-z]+\.\s*/g, '') // 품사 태그 제거
+    .replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g, '') // 특수문자 제거
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 
-        console.log("단어장 로드 완료");
+  const inp = normalize(input);
+  if (!inp) return false;
 
-    }catch(error){
-
-        alert("voca.csv 파일을 읽을 수 없습니다.");
-
-        console.error(error);
+  // 모든 뜻 후보 생성
+  const candidates = [];
+  // raw 전체 콤마 split
+  for (const m of meanings) {
+    const clean = normalize(m);
+    // 품사 태그 제거 후 콤마 split
+    const subs = clean.split(/[,\/]/);
+    for (const s of subs) {
+      const t = s.trim();
+      if (t.length >= 1) candidates.push(t);
     }
+  }
+  // raw도 같이 시도
+  const rawClean = normalize(raw);
+  for (const s of rawClean.split(/[,\/]/)) {
+    const t = s.trim();
+    if (t.length >= 1) candidates.push(t);
+  }
 
-    document
-        .getElementById("answer")
-        .addEventListener("keypress",function(e){
+  return candidates.some(c => c === inp || c.includes(inp) || inp.includes(c));
+}
 
-            if(e.key==="Enter"){
-                checkAnswer();
-            }
+// ── Day 선택 화면 ──
+function showSelectScreen() {
+  document.getElementById('loading').classList.add('hidden');
+  document.getElementById('screen-select').classList.remove('hidden');
 
-        });
+  const days = Object.keys(allWords).sort((a,b) => {
+    const na = parseInt(a.replace(/\D/g,''));
+    const nb = parseInt(b.replace(/\D/g,''));
+    return na - nb;
+  });
 
+  const grid = document.getElementById('day-grid');
+  grid.innerHTML = '';
+  days.forEach(day => {
+    const btn = document.createElement('button');
+    btn.className = 'day-btn';
+    btn.textContent = day.replace('Day','');
+    btn.dataset.day = day;
+    btn.onclick = () => toggleDay(btn, day);
+    grid.appendChild(btn);
+  });
+  updateStartBtn();
+}
+
+let selectedDays = new Set();
+function toggleDay(btn, day) {
+  if (selectedDays.has(day)) { selectedDays.delete(day); btn.classList.remove('selected'); }
+  else { selectedDays.add(day); btn.classList.add('selected'); }
+  updateStartBtn();
+}
+function updateStartBtn() {
+  const count = [...selectedDays].reduce((s,d) => s + (allWords[d]?.length||0), 0);
+  document.getElementById('btn-start').disabled = selectedDays.size === 0;
+  document.getElementById('selected-days-info').textContent =
+    selectedDays.size ? `${selectedDays.size}개 Day 선택됨` : '선택된 Day 없음';
+  document.getElementById('word-count-info').textContent =
+    count ? `총 ${count}개 단어 중 30문제` : '';
+}
+
+document.getElementById('btn-start').onclick = () => startQuiz(false);
+
+function startQuiz(retryMode) {
+  isRetryMode = retryMode;
+  let pool = [];
+  if (retryMode) {
+    pool = wrongWords.slice();
+  } else {
+    wrongWords = [];
+    for (const day of selectedDays) {
+      pool.push(...(allWords[day]||[]).map(w => ({...w, day})));
+    }
+  }
+  // 셔플
+  for (let i = pool.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]] = [pool[j],pool[i]];
+  }
+  quiz = pool.slice(0, 30);
+  current = 0;
+  sessionWrong = [];
+
+  document.getElementById('screen-select').classList.add('hidden');
+  document.getElementById('screen-result').classList.add('hidden');
+  document.getElementById('screen-quiz').classList.remove('hidden');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  tries = 0;
+  const q = quiz[current];
+  const total = quiz.length;
+
+  document.getElementById('progress-fill').style.width = `${(current/total)*100}%`;
+  document.getElementById('q-counter').textContent = `${current+1} / ${total}`;
+  document.getElementById('q-wrong-count').textContent = `❌ ${sessionWrong.length}`;
+  document.getElementById('q-word').textContent = q.word;
+  document.getElementById('q-day').textContent = q.day || '';
+
+  const input = document.getElementById('answer-input');
+  input.value = '';
+  input.className = 'answer-input';
+  input.disabled = false;
+  input.focus();
+
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('answer-reveal').classList.remove('show');
+  document.getElementById('btn-check').classList.remove('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+
+  document.getElementById('dot0').className = 'try-dot';
+  document.getElementById('dot1').className = 'try-dot';
+}
+
+function checkCurrentAnswer() {
+  const input = document.getElementById('answer-input');
+  const val = input.value.trim();
+  if (!val) return;
+
+  const q = quiz[current];
+  const correct = checkAnswer(val, q.meanings, q.raw);
+
+  if (correct) {
+    input.classList.add('correct');
+    document.getElementById('feedback').textContent = '🎉 정답입니다!';
+    document.getElementById('feedback').className = 'feedback success';
+    showNext();
+  } else {
+    tries++;
+    document.getElementById(`dot${tries-1}`).classList.add('used');
+    if (tries >= 2) {
+      input.classList.add('wrong');
+      document.getElementById('feedback').textContent = '❌ 오답! 정답을 확인하세요.';
+      document.getElementById('feedback').className = 'feedback error';
+      revealAnswer(q);
+      if (!sessionWrong.find(w => w.word === q.word)) sessionWrong.push(q);
+      if (!wrongWords.find(w => w.word === q.word)) wrongWords.push({...q});
+      showNext();
+    } else {
+      input.classList.add('wrong');
+      document.getElementById('feedback').textContent = '❌ 틀렸습니다. 한 번 더 시도하세요.';
+      document.getElementById('feedback').className = 'feedback error';
+      setTimeout(() => {
+        input.classList.remove('wrong');
+        input.value = '';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('feedback').className = 'feedback';
+        input.focus();
+      }, 900);
+    }
+  }
+}
+
+function revealAnswer(q) {
+  const el = document.getElementById('answer-reveal');
+  el.classList.add('show');
+  document.getElementById('reveal-meanings').innerHTML =
+    q.meanings.map(m => `<span>${m}</span>`).join('<br>');
+}
+
+function showNext() {
+  document.getElementById('btn-check').classList.add('hidden');
+  document.getElementById('answer-input').disabled = true;
+  if (current + 1 >= quiz.length) {
+    document.getElementById('btn-next').textContent = '결과 보기 →';
+  } else {
+    document.getElementById('btn-next').textContent = '다음 문제 →';
+  }
+  document.getElementById('btn-next').classList.remove('hidden');
+}
+
+document.getElementById('btn-check').onclick = checkCurrentAnswer;
+document.getElementById('answer-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!document.getElementById('btn-check').classList.contains('hidden')) {
+      checkCurrentAnswer();
+    } else {
+      document.getElementById('btn-next').click();
+    }
+  }
+});
+
+document.getElementById('btn-next').onclick = () => {
+  current++;
+  if (current >= quiz.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
 };
 
-function parseCSV(text){
+function showResult() {
+  document.getElementById('screen-quiz').classList.add('hidden');
+  document.getElementById('screen-result').classList.remove('hidden');
 
-    const lines =
-        text.split(/\r?\n/)
-            .filter(line => line.trim());
+  const total = quiz.length;
+  const wrong = sessionWrong.length;
+  const correct = total - wrong;
+  const rate = Math.round((correct/total)*100);
 
-    vocabData = [];
+  document.getElementById('r-correct').textContent = correct;
+  document.getElementById('r-wrong').textContent = wrong;
+  document.getElementById('r-rate').textContent = rate + '%';
 
-    for(let i=1;i<lines.length;i++){
+  const emoji = rate === 100 ? '🏆' : rate >= 80 ? '🎉' : rate >= 60 ? '👍' : '📚';
+  const title = rate === 100 ? '완벽해요!' : rate >= 80 ? '잘 했어요!' : rate >= 60 ? '괜찮아요!' : '더 연습해요!';
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-sub').textContent = `${total}문제 중 ${correct}개 정답`;
 
-        const cols = lines[i].split(",");
+  const listEl = document.getElementById('wrong-list-items');
+  listEl.innerHTML = '';
+  const btn = document.getElementById('btn-retry-wrong');
 
-        if(cols.length < 3) continue;
-
-        const day = cols[0].trim();
-        const word = cols[1].trim();
-        const meaning =
-            cols.slice(2).join(",").trim();
-
-        vocabData.push({
-            day,
-            word,
-            meaning
-        });
-    }
-
+  if (sessionWrong.length === 0) {
+    document.getElementById('wrong-list-section').style.display = 'none';
+    btn.style.display = 'none';
+  } else {
+    document.getElementById('wrong-list-section').style.display = 'block';
+    document.getElementById('wrong-list-title').textContent = `틀린 단어 (${sessionWrong.length}개)`;
+    btn.style.display = 'block';
+    sessionWrong.forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `<span class="w">${w.word}</span><span class="m">${w.raw}</span>`;
+      listEl.appendChild(div);
+    });
+  }
 }
 
-function shuffle(array){
-
-    for(let i=array.length-1;i>0;i--){
-
-        const j =
-            Math.floor(Math.random()*(i+1));
-
-        [array[i],array[j]]
-            =
-        [array[j],array[i]];
-    }
-
-    return array;
+function retryWrong() {
+  if (wrongWords.length === 0) return;
+  startQuiz(true);
 }
 
-function loadDay(){
-
-    let day =
-        document.getElementById("dayInput").value;
-
-    if(!day){
-
-        alert("DAY를 입력하세요.");
-
-        return;
-    }
-
-    day =
-        "Day" +
-        String(day).padStart(2,"0");
-
-    const dayWords =
-        vocabData.filter(
-            item => item.day === day
-        );
-
-    if(dayWords.length===0){
-
-        alert("해당 DAY 데이터가 없습니다.");
-
-        return;
-    }
-
-    quizList =
-        shuffle([...dayWords])
-        .slice(
-            0,
-            Math.min(
-                TOTAL_QUESTIONS,
-                dayWords.length
-            )
-        );
-
-    currentIndex = 0;
-    score = 0;
-    wrongWords = [];
-
-    document.getElementById("summary").style.display="none";
-
-    document.getElementById("quizArea").style.display="block";
-
-    showQuestion();
-
+function goHome() {
+  document.getElementById('screen-result').classList.add('hidden');
+  document.getElementById('screen-select').classList.remove('hidden');
 }
 
-function showQuestion(){
-
-    if(currentIndex >= quizList.length){
-
-        finishQuiz();
-
-        return;
-    }
-
-    wrongCount = 0;
-
-    document.getElementById("answer").value="";
-
-    document.getElementById("result").innerHTML="";
-
-    document.getElementById("progress").innerHTML=
-        `${currentIndex+1} / ${quizList.length}`;
-
-    document.getElementById("word").innerHTML=
-        quizList[currentIndex].word;
-
-    document.getElementById("answer").focus();
-
-}
-
-function cleanMeaning(text){
-
-    return text
-        .replace(/\b[a-z]+\./gi,"")
-        .replace(/[()]/g,"")
-        .replace(/\s+/g,"")
-        .trim();
-
-}
-
-function isCorrectAnswer(userInput, meaning){
-
-    userInput =
-        cleanMeaning(userInput);
-
-    const answers =
-        cleanMeaning(meaning)
-            .split(",");
-
-    return answers.some(answer =>
-
-        answer.includes(userInput) ||
-        userInput.includes(answer)
-
-    );
-
-}
-
-function checkAnswer(){
-
-    const input =
-        document.getElementById("answer").value;
-
-    if(!input.trim()) return;
-
-    const current =
-        quizList[currentIndex];
-
-    if(
-        isCorrectAnswer(
-            input,
-            current.meaning
-        )
-    ){
-
-        score++;
-
-        document.getElementById("result").innerHTML=
-            "<p class='correct'>정답!</p>";
-
-        setTimeout(()=>{
-
-            currentIndex++;
-
-            showQuestion();
-
-        },800);
-
-    }else{
-
-        wrongCount++;
-
-        if(wrongCount >= 2){
-
-            wrongWords.push(current);
-
-            document.getElementById("result").innerHTML=
-            `
-            <p class="wrong">
-            오답<br>
-            정답 : ${current.meaning}
-            </p>
-            `;
-
-            setTimeout(()=>{
-
-                currentIndex++;
-
-                showQuestion();
-
-            },2000);
-
-        }else{
-
-            document.getElementById("result").innerHTML=
-            `
-            <p class="wrong">
-            틀렸습니다.
-            한 번 더 시도하세요.
-            </p>
-            `;
-        }
-
-    }
-
-}
-
-function finishQuiz(){
-
-    document.getElementById("quizArea").style.display="none";
-
-    const accuracy =
-        ((score/quizList.length)*100)
-        .toFixed(1);
-
-    let html =
-
-    `
-    <h2>학습 결과</h2>
-
-    <p>총 문제 : ${quizList.length}</p>
-
-    <p>정답 : ${score}</p>
-
-    <p>오답 : ${wrongWords.length}</p>
-
-    <p>정답률 : ${accuracy}%</p>
-    `;
-
-    if(wrongWords.length > 0){
-
-        html +=
-        `
-        <button onclick="retryWrong()">
-        틀린 문제 다시 풀기
-        </button>
-        `;
-    }
-
-    document.getElementById("summary").innerHTML=
-        html;
-
-    document.getElementById("summary").style.display="block";
-
-}
-
-function retryWrong(){
-
-    quizList = [...wrongWords];
-
-    currentIndex = 0;
-
-    score = 0;
-
-    wrongWords = [];
-
-    document.getElementById("summary").style.display="none";
-
-    document.getElementById("quizArea").style.display="block";
-
-    showQuestion();
-
-}
-
+// ── 시작 ──
+loadCSV();
 </script>
-
 </body>
 </html>
