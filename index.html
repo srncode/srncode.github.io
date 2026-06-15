@@ -893,20 +893,52 @@ function goHome() {
 }
 
 // ── 정답 판단 ──
+
+// '직관(력)' → ['직관력', '직관'] 두 가지 모두 생성
+function expandParens(s) {
+  const results = new Set([s]);
+  // 괄호 포함 버전: 괄호 내용을 붙여서 → '직관력'
+  const withParen = s.replace(/\(([^)]+)\)/g, '$1');
+  results.add(withParen);
+  // 괄호 제거 버전: 괄호 자체를 삭제 → '직관'
+  const withoutParen = s.replace(/\s*\([^)]+\)/g, '').replace(/\([^)]+\)\s*/g, '');
+  results.add(withoutParen);
+  return [...results].map(r => r.trim()).filter(r => r.length > 0);
+}
+
 function isCorrect(input, meanings, raw) {
   const norm = s => s
     .replace(/[a-z]+\.\s*/g,'')
-    .replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g,'')
+    .replace(/[^\uAC00-\uD7A3a-zA-Z0-9()\s]/g,'')
     .replace(/\s+/g,' ').trim().toLowerCase();
-  const inp = norm(input);
+  const normFinal = s => s
+    .replace(/[^\uAC00-\uD7A3a-zA-Z0-9\s]/g,'')
+    .replace(/\s+/g,' ').trim();
+
+  const inp = normFinal(norm(input));
   if(!inp) return false;
+
   const candidates = new Set();
-  for(const m of [...meanings, raw]){
-    const c=norm(m);
-    candidates.add(c);
-    for(const s of c.split(/[,\/]/)){const t=s.trim();if(t)candidates.add(t);}
+  for(const m of [...meanings, raw]) {
+    const c = norm(m);
+    // 콤마·슬래시로 나눈 각 뜻 조각마다 괄호 확장
+    for(const s of c.split(/[,\/]/)) {
+      const t = s.trim();
+      if(!t) continue;
+      for(const ex of expandParens(t)) {
+        candidates.add(normFinal(ex));
+      }
+    }
   }
-  return [...candidates].some(c=>c===inp||c.includes(inp)||inp.includes(c));
+
+  // 사용자 입력도 괄호 확장해서 비교 (입력에 괄호가 있을 경우)
+  const inpVariants = expandParens(inp).map(normFinal);
+
+  return [...candidates].some(c =>
+    inpVariants.some(iv =>
+      c === iv || c.includes(iv) || iv.includes(c)
+    )
+  );
 }
 
 // ── 시작 ──
