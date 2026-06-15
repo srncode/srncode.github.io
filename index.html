@@ -1,234 +1,433 @@
 <!DOCTYPE html>
+
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google</title>
-    <style>
-        /* 기본 리셋 스타일 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EBS VOCA 암기장</title>
 
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            color: #202124;
-        }
+<style>
 
-        /* 상단 네비게이션 바 */
-        header {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 15px 24px;
-            font-size: 13px;
-        }
+body{
+    font-family: Arial, sans-serif;
+    max-width:900px;
+    margin:auto;
+    padding:20px;
+    background:#f5f7fa;
+}
 
-        header a {
-            text-decoration: none;
-            color: rgba(0,0,0,0.87);
-            margin-right: 15px;
-        }
+h1{
+    text-align:center;
+}
 
-        header a:hover {
-            text-decoration: underline;
-        }
+.card{
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    margin-top:20px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
 
-        .sign-in-btn {
-            background-color: #1a73e8;
-            color: white;
-            padding: 9px 23px;
-            border-radius: 4px;
-            font-weight: bold;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
+.word{
+    font-size:36px;
+    font-weight:bold;
+    text-align:center;
+    color:#1f4e79;
+    margin:20px 0;
+}
 
-        .sign-in-btn:hover {
-            background-color: #1557b0;
-            text-decoration: none;
-        }
+input[type="text"]{
+    width:100%;
+    padding:12px;
+    font-size:18px;
+    box-sizing:border-box;
+}
 
-        /* 메인 콘텐츠 영역 */
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding-bottom: 100px; /* 푸터 공간 확보를 위한 여백 */
-        }
+button{
+    padding:10px 15px;
+    margin-top:10px;
+    cursor:pointer;
+}
 
-        /* 구글 로고 */
-        .logo {
-            font-size: 90px;
-            font-weight: 500;
-            letter-spacing: -2px;
-            margin-bottom: 30px;
-            user-select: none;
-        }
-        .g1 { color: #4285F4; }
-        .o1 { color: #EA4335; }
-        .o2 { color: #FBBC05; }
-        .g2 { color: #4285F4; }
-        .l  { color: #34A853; }
-        .e  { color: #EA4335; }
+.correct{
+    color:green;
+    font-weight:bold;
+}
 
-        /* 검색창 영역 */
-        .search-container {
-            width: 100%;
-            max-width: 584px;
-            position: relative;
-        }
+.wrong{
+    color:red;
+    font-weight:bold;
+}
 
-        .search-box {
-            width: 100%;
-            height: 46px;
-            border: 1px solid #dfe1e5;
-            border-radius: 24px;
-            padding: 0 45px 0 45px;
-            font-size: 16px;
-            outline: none;
-            transition: box-shadow 0.2s;
-        }
+#progress{
+    font-size:18px;
+    font-weight:bold;
+}
 
-        .search-box:hover, .search-box:focus {
-            box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-            border-color: rgba(223,225,229,0);
-        }
+</style>
 
-        /* 검색창 내부 아이콘들 (돋보기 및 마이크 마크 대체) */
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 14px;
-            color: #9aa0a6;
-            width: 20px;
-            height: 20px;
-        }
-
-        .mic-icon {
-            position: absolute;
-            right: 15px;
-            top: 13px;
-            color: #4285F4;
-            cursor: pointer;
-        }
-
-        /* 버튼 영역 */
-        .button-container {
-            margin-top: 28px;
-        }
-
-        .btn {
-            background-color: #f8f9fa;
-            border: 1px solid #f8f9fa;
-            border-radius: 4px;
-            color: #3c4043;
-            font-size: 14px;
-            margin: 5px;
-            padding: 0 16px;
-            line-height: 34px;
-            height: 36px;
-            min-width: 54px;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .btn:hover {
-            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
-            background-color: #f8f9fa;
-            border: 1px solid #dadce0;
-            color: #202124;
-        }
-
-        /* 하단 푸터 영역 */
-        footer {
-            background-color: #f2f2f2;
-            font-size: 14px;
-            color: #70757a;
-            border-top: 1px solid #e4e4e4;
-        }
-
-        .footer-top {
-            padding: 15px 30px;
-            border-bottom: 1px solid #e4e4e4;
-        }
-
-        .footer-bottom {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            padding: 15px 30px;
-        }
-
-        .footer-bottom a {
-            text-decoration: none;
-            color: #70757a;
-            margin-right: 30px;
-        }
-
-        .footer-bottom a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-right {
-            margin-right: -30px; /* 우측 정렬 맞춤 */
-        }
-    </style>
 </head>
+
 <body>
 
-    <header>
-        <a href="#">Gmail</a>
-        <a href="#">이미지</a>
-        <a href="#" style="margin-right: 20px; font-size: 16px;">⣿</a>
-        <a href="#" class="sign-in-btn">로그인</a>
-    </header>
+<h1>📖 EBS VOCA 암기장</h1>
 
-    <main>
-        <div class="logo">
-            <span class="g1">G</span><span class="o1">o</span><span class="o2">o</span><span class="g2">g</span><span class="l">l</span><span class="e">e</span>
-        </div>
+<div class="card">
 
-        <div class="search-container">
-            <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
-            
-            <input type="text" class="search-box" autofocus>
-            
-            <span class="mic-icon">🎙️</span>
-        </div>
+```
+<label>DAY 입력 (1~30)</label>
 
-        <div class="button-container">
-            <button class="btn">Google 검색</button>
-            <button class="btn">I'm Feeling Lucky</button>
-        </div>
-    </main>
+<input
+    type="number"
+    id="dayInput"
+    min="1"
+    max="30"
+    placeholder="예: 1">
 
-    <footer>
-        <div class="footer-top">
-            대한민국
-        </div>
-        <div class="footer-bottom">
-            <div class="footer-left">
-                <a href="#">구글 정보</a>
-                <a href="#">광고</a>
-                <a href="#">비즈니스</a>
-                <a href="#">검색의 원리</a>
-            </div>
-            <div class="footer-right">
-                <a href="#">개인정보처리방침</a>
-                <a href="#">약관</a>
-                <a href="#">설정</a>
-            </div>
-        </div>
-    </footer>
+<br>
+
+<button onclick="loadDay()">학습 시작</button>
+```
+
+</div>
+
+<div id="quizArea" class="card" style="display:none;">
+
+```
+<div id="progress"></div>
+
+<div class="word" id="word"></div>
+
+<input
+    type="text"
+    id="answer"
+    placeholder="뜻을 입력하세요">
+
+<button onclick="checkAnswer()">정답 확인</button>
+
+<div id="result"></div>
+```
+
+</div>
+
+<div id="summary" class="card" style="display:none;"></div>
+
+<script>
+
+let vocabData = [];
+let quizList = [];
+
+let currentIndex = 0;
+let score = 0;
+let wrongWords = [];
+let wrongCount = 0;
+
+const TOTAL_QUESTIONS = 30;
+
+window.onload = async function(){
+
+    try{
+
+        const response = await fetch("voca.csv");
+
+        const text = await response.text();
+
+        parseCSV(text);
+
+        console.log("단어장 로드 완료");
+
+    }catch(error){
+
+        alert("voca.csv 파일을 읽을 수 없습니다.");
+
+        console.error(error);
+    }
+
+    document
+        .getElementById("answer")
+        .addEventListener("keypress",function(e){
+
+            if(e.key==="Enter"){
+                checkAnswer();
+            }
+
+        });
+
+};
+
+function parseCSV(text){
+
+    const lines =
+        text.split(/\r?\n/)
+            .filter(line => line.trim());
+
+    vocabData = [];
+
+    for(let i=1;i<lines.length;i++){
+
+        const cols = lines[i].split(",");
+
+        if(cols.length < 3) continue;
+
+        const day = cols[0].trim();
+        const word = cols[1].trim();
+        const meaning =
+            cols.slice(2).join(",").trim();
+
+        vocabData.push({
+            day,
+            word,
+            meaning
+        });
+    }
+
+}
+
+function shuffle(array){
+
+    for(let i=array.length-1;i>0;i--){
+
+        const j =
+            Math.floor(Math.random()*(i+1));
+
+        [array[i],array[j]]
+            =
+        [array[j],array[i]];
+    }
+
+    return array;
+}
+
+function loadDay(){
+
+    let day =
+        document.getElementById("dayInput").value;
+
+    if(!day){
+
+        alert("DAY를 입력하세요.");
+
+        return;
+    }
+
+    day =
+        "Day" +
+        String(day).padStart(2,"0");
+
+    const dayWords =
+        vocabData.filter(
+            item => item.day === day
+        );
+
+    if(dayWords.length===0){
+
+        alert("해당 DAY 데이터가 없습니다.");
+
+        return;
+    }
+
+    quizList =
+        shuffle([...dayWords])
+        .slice(
+            0,
+            Math.min(
+                TOTAL_QUESTIONS,
+                dayWords.length
+            )
+        );
+
+    currentIndex = 0;
+    score = 0;
+    wrongWords = [];
+
+    document.getElementById("summary").style.display="none";
+
+    document.getElementById("quizArea").style.display="block";
+
+    showQuestion();
+
+}
+
+function showQuestion(){
+
+    if(currentIndex >= quizList.length){
+
+        finishQuiz();
+
+        return;
+    }
+
+    wrongCount = 0;
+
+    document.getElementById("answer").value="";
+
+    document.getElementById("result").innerHTML="";
+
+    document.getElementById("progress").innerHTML=
+        `${currentIndex+1} / ${quizList.length}`;
+
+    document.getElementById("word").innerHTML=
+        quizList[currentIndex].word;
+
+    document.getElementById("answer").focus();
+
+}
+
+function cleanMeaning(text){
+
+    return text
+        .replace(/\b[a-z]+\./gi,"")
+        .replace(/[()]/g,"")
+        .replace(/\s+/g,"")
+        .trim();
+
+}
+
+function isCorrectAnswer(userInput, meaning){
+
+    userInput =
+        cleanMeaning(userInput);
+
+    const answers =
+        cleanMeaning(meaning)
+            .split(",");
+
+    return answers.some(answer =>
+
+        answer.includes(userInput) ||
+        userInput.includes(answer)
+
+    );
+
+}
+
+function checkAnswer(){
+
+    const input =
+        document.getElementById("answer").value;
+
+    if(!input.trim()) return;
+
+    const current =
+        quizList[currentIndex];
+
+    if(
+        isCorrectAnswer(
+            input,
+            current.meaning
+        )
+    ){
+
+        score++;
+
+        document.getElementById("result").innerHTML=
+            "<p class='correct'>정답!</p>";
+
+        setTimeout(()=>{
+
+            currentIndex++;
+
+            showQuestion();
+
+        },800);
+
+    }else{
+
+        wrongCount++;
+
+        if(wrongCount >= 2){
+
+            wrongWords.push(current);
+
+            document.getElementById("result").innerHTML=
+            `
+            <p class="wrong">
+            오답<br>
+            정답 : ${current.meaning}
+            </p>
+            `;
+
+            setTimeout(()=>{
+
+                currentIndex++;
+
+                showQuestion();
+
+            },2000);
+
+        }else{
+
+            document.getElementById("result").innerHTML=
+            `
+            <p class="wrong">
+            틀렸습니다.
+            한 번 더 시도하세요.
+            </p>
+            `;
+        }
+
+    }
+
+}
+
+function finishQuiz(){
+
+    document.getElementById("quizArea").style.display="none";
+
+    const accuracy =
+        ((score/quizList.length)*100)
+        .toFixed(1);
+
+    let html =
+
+    `
+    <h2>학습 결과</h2>
+
+    <p>총 문제 : ${quizList.length}</p>
+
+    <p>정답 : ${score}</p>
+
+    <p>오답 : ${wrongWords.length}</p>
+
+    <p>정답률 : ${accuracy}%</p>
+    `;
+
+    if(wrongWords.length > 0){
+
+        html +=
+        `
+        <button onclick="retryWrong()">
+        틀린 문제 다시 풀기
+        </button>
+        `;
+    }
+
+    document.getElementById("summary").innerHTML=
+        html;
+
+    document.getElementById("summary").style.display="block";
+
+}
+
+function retryWrong(){
+
+    quizList = [...wrongWords];
+
+    currentIndex = 0;
+
+    score = 0;
+
+    wrongWords = [];
+
+    document.getElementById("summary").style.display="none";
+
+    document.getElementById("quizArea").style.display="block";
+
+    showQuestion();
+
+}
+
+</script>
 
 </body>
 </html>
